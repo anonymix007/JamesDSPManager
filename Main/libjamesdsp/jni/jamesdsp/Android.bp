@@ -151,3 +151,25 @@ cc_library_shared {
         "-fvisibility=hidden",
     ],
 }
+
+cc_library_shared {
+    name: "libjamesdspaidl",
+    vendor: true,
+    relative_install_path: "soundfx",
+    defaults: [
+        "aidlaudioeffectservice_defaults",
+        "jdspEffectDefaults",
+    ],
+    srcs: [
+        "jamesdsp_aidl.cpp",
+        // AOSP
+        ":effectCommonFile",
+    ],
+    shared_libs: [
+        "libbinder",
+    ],
+    whole_static_libs: [
+        "libaudio_aidl_conversion_common_ndk",
+        "libstagefright_foundation",
+    ],
+}
