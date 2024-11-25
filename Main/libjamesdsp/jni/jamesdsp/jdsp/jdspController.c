@@ -3,6 +3,9 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 #include <float.h>
 #include "Effects/eel2/dr_flac.h"
 #include "Effects/eel2/ns-eel.h"
