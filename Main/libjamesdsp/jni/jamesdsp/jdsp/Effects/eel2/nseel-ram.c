@@ -23,7 +23,7 @@
 #ifdef _WIN32
 #include <malloc.h>
 #ifdef _MSC_VER
-#define inline __inline
+#define static inline __inline
 #endif
 #endif
 float * NSEEL_CGEN_CALL __NSEEL_RAM_MemCpy(float *blocks, float *dest, float *src, float *lenptr)

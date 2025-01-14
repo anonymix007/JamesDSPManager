@@ -39,7 +39,7 @@
 #define FFT_MAXBITLEN 15
 
 #ifdef _MSC_VER
-#define inline __inline
+#define static inline __inline
 #endif
 
 #define PI 3.1415926535897932384626433832795f

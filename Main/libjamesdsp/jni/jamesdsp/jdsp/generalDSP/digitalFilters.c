@@ -115,13 +115,13 @@ typedef struct
 {
 	double re, im;
 } jcomplex;
-inline void complexMultiplicationj(jcomplex *x, jcomplex *h, jcomplex *y)
+static inline void complexMultiplicationj(jcomplex *x, jcomplex *h, jcomplex *y)
 {
 	double imag = x->re * h->im + x->im * h->re;
 	y->re = x->re * h->re - x->im * h->im;
 	y->im = imag;
 }
-inline void complexDivisionj(jcomplex *x, jcomplex *h, jcomplex *y)
+static inline void complexDivisionj(jcomplex *x, jcomplex *h, jcomplex *y)
 {
 	double c = h->re;
 	double d = h->im;
