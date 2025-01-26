@@ -1,0 +1,10 @@
+# Define prebuilt libraries delivered with the Hexagon SDK
+include $(HEXAGON_SDK_ROOT)/build/default_deps.min
+
+# Define variants supported by this project
+SUPPORTED_VS = $(default_VS)
+
+# Define project library dependencies
+DEPENDENCIES += \
+  ATOMIC \
+  TEST_UTIL

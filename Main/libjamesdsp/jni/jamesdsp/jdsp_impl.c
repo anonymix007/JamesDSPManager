@@ -1,9 +1,19 @@
 #ifdef DEBUG
 #define TAG "EffectDSPMain"
+#ifdef __hexagon__
+#define FARF_HIGH 1
+#define FARF_MEDIUM 1
+#define FARF_ERROR 1
+#include <HAP_farf.h>
+#define LOGI(...) FARF(LOW, __VA_ARGS__)
+#define LOGE(...) FARF(ERROR, __VA_ARGS__)
+#define LOGW(...) FARF(MEDIUM, __VA_ARGS__)
+#else
 #include <android/log.h>
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO,TAG,__VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR,TAG,__VA_ARGS__)
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN,TAG,__VA_ARGS__)
+#endif
 #include "MemoryUsage.h"
 #endif
 
@@ -794,6 +804,7 @@ int32_t EffectDSPMainProcess(EffectDSPMain *dspmain, audio_buffer_t *in, audio_b
 	return dspmain->mEnable ? 0 : -ENODATA;
 }
 
+#ifndef __hexagon__
 __attribute__((constructor)) static void initialize(void)
 {
 	JamesDSPGlobalMemoryAllocation();
@@ -808,3 +819,4 @@ __attribute__((destructor)) static void destruction(void)
 	LOGI("Initialization: DLL unloaded");
 #endif
 }
+#endif

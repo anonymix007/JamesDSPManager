@@ -1,0 +1,32 @@
+LIB_DSPRPC = libcdsprpc
+
+# binary names
+DLL_NAME=libjamesdsp
+
+UTILS_DIR=$(HEXAGON_SDK_ROOT)/utils/examples
+
+C_FLAGS += -Oz \
+           -flto \
+           -fvisibility=hidden \
+           -DHEXAGON_STUB \
+           -fdebug-prefix-map=$(HOME)=/mnt/workspace \
+
+# stub library
+BUILD_DLLS += $(DLL_NAME)
+BUILD_LIBS += $(DLL_NAME)
+$(DLL_NAME)_QAICIDLS += jamesdsp/jamesdsp
+$(DLL_NAME)_C_SRCS += $(UTILS_DIR)/dsp_capabilities_utils \
+                      $(UTILS_DIR)/pd_status_notification \
+                      $(OBJ_DIR)/jamesdsp_stub \
+                      jamesdsp/jdsp_stub \
+                      jamesdsp/jamesdsp
+$(DLL_NAME)_DLLS += $(LIB_DSPRPC)
+$(DLL_NAME)_LD_FLAGS += -llog -ldl
+
+
+# copy final build products to the ship directory
+BUILD_COPIES = \
+   $(DLLS) \
+   $(EXES) \
+   $(LIBS) \
+   $(SHIP_DIR)/ ;

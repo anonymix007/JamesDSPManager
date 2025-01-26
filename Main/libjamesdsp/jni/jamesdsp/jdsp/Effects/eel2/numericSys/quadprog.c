@@ -7,16 +7,16 @@
 //#include <vld.h>
 #include "solvopt.h"
 #include "quadprog.h"
-void transpose(double *src, double *dst, int n, int m)
+void transpose(double *src, double *dst, int32_t n, int32_t m)
 {
-	for (int k = 0; k < n * m; k++)
+	for (int32_t k = 0; k < n * m; k++)
 		dst[k] = src[m * (k % n) + (k / n)];
 }
-int rank(const double *mat, const int n, const int m)
+int32_t rank(const double *mat, const int32_t n, const int32_t m)
 {
-	int i, j;
+	int32_t i, j;
 	const double EPS = DBL_EPSILON; //1E-9
-	int rank = 0;
+	int32_t rank = 0;
 	double *A = (double*)malloc(n * m * sizeof(double));
 	memcpy(A, mat, n * m * sizeof(double));
 	char *row_selected = (char*)malloc(n * sizeof(char));
@@ -32,13 +32,13 @@ int rank(const double *mat, const int n, const int m)
 		{
 			++rank;
 			row_selected[j] = 1;
-			for (int p = i + 1; p < m; ++p)
+			for (int32_t p = i + 1; p < m; ++p)
 				A[j * m + p] /= A[j * m + i];
-			for (int k = 0; k < n; ++k)
+			for (int32_t k = 0; k < n; ++k)
 			{
 				if (k != j && fabs(A[k * m + i]) > EPS)
 				{
-					for (int p = i + 1; p < m; ++p)
+					for (int32_t p = i + 1; p < m; ++p)
 						A[k * m + p] -= A[j * m + p] * A[k * m + i];
 				}
 			}
@@ -48,9 +48,9 @@ int rank(const double *mat, const int n, const int m)
 	free(row_selected);
 	return rank;
 }
-void matrix_matrix_product(const double *a, const double *b, double *product, int rows1, int cols1, int rows2, int cols2, double weight)
+void matrix_matrix_product(const double *a, const double *b, double *product, int32_t rows1, int32_t cols1, int32_t rows2, int32_t cols2, double weight)
 {
-	int i, j, k;
+	int32_t i, j, k;
 	for (i = 0; i < rows1; ++i)
 		for (j = 0; j < cols2; ++j)
 		{
@@ -60,9 +60,9 @@ void matrix_matrix_product(const double *a, const double *b, double *product, in
 			product[i * cols2 + j] = res;
 		}
 }
-void transpose_matrix_matrix_self_product(const double *a, double *product, int rows1, int row1)
+void transpose_matrix_matrix_self_product(const double *a, double *product, int32_t rows1, int32_t row1)
 {
-	int i, j, k;
+	int32_t i, j, k;
 	for (i = 0; i < row1; ++i)
 		for (j = 0; j < row1; ++j)
 		{
@@ -72,9 +72,9 @@ void transpose_matrix_matrix_self_product(const double *a, double *product, int 
 			product[i * row1 + j] = res;
 		}
 }
-void matrix_transpose_matrix_self_product(const double *a, double *product, int rows1, int cols1)
+void matrix_transpose_matrix_self_product(const double *a, double *product, int32_t rows1, int32_t cols1)
 {
-	int i, j, k;
+	int32_t i, j, k;
 	for (i = 0; i < rows1; ++i)
 		for (j = 0; j < rows1; ++j)
 		{
@@ -84,45 +84,45 @@ void matrix_transpose_matrix_self_product(const double *a, double *product, int 
 			product[i * rows1 + j] = res;
 		}
 }
-double unroll_dot_product(const double *x, const double *y, int n, double weight)
+double unroll_dot_product(const double *x, const double *y, int32_t n, double weight)
 {
 	double res = 0.0;
-	int i = 0;
+	int32_t i = 0;
 	for (; i <= n - 4; i += 4)
 		res += (x[i] * y[i] + x[i + 1] * y[i + 1] + x[i + 2] * y[i + 2] + x[i + 3] * y[i + 3]) * weight;
 	for (; i < n; i++)
 		res += (x[i] * y[i]) * weight;
 	return res;
 }
-void matrix_vector_mult(const double *mat, const double *vec, double *c, int rows, int cols, double weight)
+void matrix_vector_mult(const double *mat, const double *vec, double *c, int32_t rows, int32_t cols, double weight)
 {
-	for (int i = 0; i < rows; i++)
+	for (int32_t i = 0; i < rows; i++)
 	{
 		double res = 0.0;
-		for (int j = 0; j < cols; j++)
+		for (int32_t j = 0; j < cols; j++)
 			res += (mat[i * cols + j] * vec[j] * weight);
 		c[i] = res;
 	}
 }
-void transpose_matrix_vector_mult(const double *mat, const double *vec, double *c, int rows, int cols, double weight)
+void transpose_matrix_vector_mult(const double *mat, const double *vec, double *c, int32_t rows, int32_t cols, double weight)
 {
-	for (int i = 0; i < cols; i++)
+	for (int32_t i = 0; i < cols; i++)
 	{
 		double res = 0.0;
-		for (int j = 0; j < rows; j++)
+		for (int32_t j = 0; j < rows; j++)
 			res += (mat[j * cols + i] * vec[j] * weight);
 		c[i] = res;
 	}
 }
 // A simple division-free algorithm for computing determinant
-double determinant(const double *a, int n)
+double determinant(const double *a, int32_t n)
 {
 	double *A = (double*)malloc(n * n * 2 * sizeof(double));
 	double *tmp = A + n * n;
 	memcpy(A, a, n * n * sizeof(double));
-	int i, j, k;
+	int32_t i, j, k;
 	double sum;
-	for (int count = 0; count < n - 1; count++)
+	for (int32_t count = 0; count < n - 1; count++)
 	{
 		for (i = 0; i < n; i++)
 		{
@@ -158,14 +158,14 @@ double obj(double x[], SharedFunctionVariables *pass)
 void gobj(double x[], double g[], SharedFunctionVariables *pass)
 {
 	matrix_vector_mult(pass->H, x, pass->tmp1, pass->dimY, pass->dimY, 1.0);
-	for (int i = 0; i < pass->dimY; i++)
+	for (int32_t i = 0; i < pass->dimY; i++)
 		g[i] = pass->tmp1[i] + pass->f[i];
 }
 double pen(double x[], SharedFunctionVariables *pass)
 {
 	matrix_vector_mult(pass->A, x, pass->tmp2, pass->dimX, pass->dimY, 1.0);
 	double val, ans = 0.0;
-	for (int i = 0; i < pass->dimX; i++)
+	for (int32_t i = 0; i < pass->dimX; i++)
 	{
 		val = pass->tmp2[i] - pass->b[i];
 		if (val > 0.0)
@@ -177,7 +177,7 @@ void gpen(double x[], double g[], SharedFunctionVariables *pass)
 {
 	matrix_vector_mult(pass->A, x, pass->tmp2, pass->dimX, pass->dimY, 1.0);
 	double val;
-	for (int i = 0; i < pass->dimX; i++)
+	for (int32_t i = 0; i < pass->dimX; i++)
 	{
 		val = pass->tmp2[i] - pass->b[i];
 		if (val < 0.0)
@@ -187,15 +187,15 @@ void gpen(double x[], double g[], SharedFunctionVariables *pass)
 	double ans = sqrt(unroll_dot_product(pass->tmp2, pass->tmp2, pass->dimX, 1.0));
 	matrix_matrix_product(pass->tmp2, pass->A, g, 1, pass->dimX, pass->dimX, pass->dimY, ans > 0.0 ? 1.0 / ans : 1.0);
 }
-// Matlab inv(), warm start, b_x_data is nxn double, perm1 and perm2 is n int
-void myinvWarm(const double *A, double *Y, double *b_x_data, int *perm1, int *perm2, int n)
+// Matlab inv(), warm start, b_x_data is nxn double, perm1 and perm2 is n int32_t
+void myinvWarm(const double *A, double *Y, double *b_x_data, int32_t *perm1, int32_t *perm2, int32_t n)
 {
 	if (n == 1)
 	{
 		Y[0] = 1.0 / A[0];
 		return;
 	}
-	int i, j, k, yk, i2, jA, ldap1, mmj_tmp, jp1j, jj, ix;
+	int32_t i, j, k, yk, i2, jA, ldap1, mmj_tmp, jp1j, jj, ix;
 	double smax, s;
 	memset(Y, 0, n * n * sizeof(double));
 	memcpy(b_x_data, A, n * n * sizeof(double));
@@ -300,17 +300,17 @@ void myinvWarm(const double *A, double *Y, double *b_x_data, int *perm1, int *pe
 		}
 	}
 }
-void DenmanBeaversSqrtm(const double *A, int n, int nSteps, double *solution, char *workingBuffer)
+void DenmanBeaversSqrtm(const double *A, int32_t n, int32_t nSteps, double *solution, char *workingBuffer)
 {
-	int i, j;
+	int32_t i, j;
 	memcpy(solution, A, n * n * sizeof(double));
 	double *Y = (double*)workingBuffer;
 	double *Xk = Y + n * n;
 	double *Yk = Xk + n * n;
 	double *tmp = Yk + n * n;
 	double *bPtr = tmp + n * n;
-	int *permPtr = (int*)(bPtr + n * n);
-	int *perPtr2 = permPtr + n * n;
+	int32_t *permPtr = (int32_t*)(bPtr + n * n);
+	int32_t *perPtr2 = permPtr + n * n;
 	memset(Y, 0, n * n * sizeof(double));
 	for (i = 0; i < n; i++)
 		Y[i * n + i] = 1.0;
@@ -326,7 +326,7 @@ void DenmanBeaversSqrtm(const double *A, int n, int nSteps, double *solution, ch
 			Y[i] = (Yk[i] + tmp[i]) * 0.5;
 	}
 }
-void SharedFunctionVariablesInit(SharedFunctionVariables *pass, const double *H, const double *f, const double *A, const double *b, int objectivesLen, int constraintsLen)
+void SharedFunctionVariablesInit(SharedFunctionVariables *pass, const double *H, const double *f, const double *A, const double *b, int32_t objectivesLen, int32_t constraintsLen)
 {
 	pass->H = H;
 	pass->f = f;
@@ -344,9 +344,9 @@ void SharedFunctionVariablesFree(SharedFunctionVariables *pass)
 }
 double defaultOptions[13] = { -1.0, DBL_EPSILON, DBL_EPSILON, 20e5, -1.0, DBL_EPSILON, 2.5, DBL_EPSILON }; // very high precision
 // Return error code
-int quadprog_ineq(const double *H, const double *f, const double *A, const double *b, const double *x0, int objectivesLen, int constraintsLen, double *ans, double *fval)
+int quadprog_ineq(const double *H, const double *f, const double *A, const double *b, const double *x0, int32_t objectivesLen, int32_t constraintsLen, double *ans, double *fval)
 {
-	int i, j;
+	int32_t i, j;
 	double solvopt_options[13];
 	memcpy(solvopt_options, defaultOptions, sizeof(defaultOptions));
 	//if any(eig(H) < 0)
@@ -366,15 +366,15 @@ int quadprog_ineq(const double *H, const double *f, const double *A, const doubl
 		+ constraintsLen
 		+ objectivesLen * objectivesLen) * sizeof(double)
 		+ (objectivesLen * objectivesLen * 5 * sizeof(double)) // DenmanBeaversSqrtm
-		+ (objectivesLen * objectivesLen * 2 * sizeof(int)); // DenmanBeaversSqrtm
+		+ (objectivesLen * objectivesLen * 2 * sizeof(int32_t)); // DenmanBeaversSqrtm
 	char *workingMatrix = (char*)malloc(workingBufferLength * sizeof(char));
 	double *HI = (double*)workingMatrix;
 	// try a quick check on unconstrained solution
-	double *pos = (double*)((workingMatrix + workingBufferLength) - (objectivesLen * objectivesLen * 2 * sizeof(int)) - (objectivesLen * objectivesLen * sizeof(double)));
-	int *permPtr = (int*)(pos + objectivesLen * objectivesLen);
-	int *perPtr2 = permPtr + objectivesLen * objectivesLen;
+	double *pos = (double*)((workingMatrix + workingBufferLength) - (objectivesLen * objectivesLen * 2 * sizeof(int32_t)) - (objectivesLen * objectivesLen * sizeof(double)));
+	int32_t *permPtr = (int32_t*)(pos + objectivesLen * objectivesLen);
+	int32_t *perPtr2 = permPtr + objectivesLen * objectivesLen;
 	// Check Hessian matrix is all zero, all zero -> reduce to linear programming problem
-	int counter = 0;
+	int32_t counter = 0;
 	for (i = 0; i < objectivesLen * objectivesLen; i++)
 		if (fabs(H[i]) > 0.0)
 			counter++;
@@ -526,9 +526,9 @@ int quadprog_ineq(const double *H, const double *f, const double *A, const doubl
 }
 int32_t quadprog(int problemLen, double *H, double *f, int inequalityLen, float *A, float *b, int equalityLen, float *Aeq, float *beq, float *lb, float *ub, float *outAns, float *fv)
 {
-	int i;
-	int lowerBoundLen = 0;
-	int upperBoundLen = 0;
+	int32_t i;
+	int32_t lowerBoundLen = 0;
+	int32_t upperBoundLen = 0;
 	if (lb)
 		lowerBoundLen = problemLen;
 	if (ub)
@@ -539,7 +539,7 @@ int32_t quadprog(int problemLen, double *H, double *f, int inequalityLen, float 
 		inequalityLen = 0;
 	if ((!Aeq || !beq) && equalityLen)
 		equalityLen = 0;
-	int constraintLength = inequalityLen + (equalityLen << 1) + lowerBoundLen + upperBoundLen;
+	int32_t constraintLength = inequalityLen + (equalityLen << 1) + lowerBoundLen + upperBoundLen;
 	double *synthesizedA = (double*)malloc(constraintLength * problemLen * sizeof(double));
 	double *synthesizedb = (double*)malloc(constraintLength * sizeof(double));
 	if (inequalityLen)
@@ -555,7 +555,7 @@ int32_t quadprog(int problemLen, double *H, double *f, int inequalityLen, float 
 		{
 			synthesizedb[inequalityLen + i] = beq[i];
 			synthesizedb[inequalityLen + equalityLen + i] = -beq[i];
-			for (int j = 0; j < problemLen; j++)
+			for (int32_t j = 0; j < problemLen; j++)
 			{
 				synthesizedA[inequalityLen * problemLen + i * problemLen + j] = Aeq[i * problemLen + j];
 				synthesizedA[inequalityLen * problemLen + equalityLen * problemLen + i * problemLen + j] = -Aeq[i * problemLen + j];
@@ -582,7 +582,7 @@ int32_t quadprog(int problemLen, double *H, double *f, int inequalityLen, float 
 	}
 	double *ans = (double*)malloc(problemLen * sizeof(double));
 	double fval;
-	int err = quadprog_ineq(H, f, synthesizedA, synthesizedb, 0, problemLen, constraintLength, ans, &fval);
+	int32_t err = quadprog_ineq(H, f, synthesizedA, synthesizedb, 0, problemLen, constraintLength, ans, &fval);
 	for (i = 0; i < problemLen; i++)
 		outAns[i] = (float)ans[i];
 	free(ans);
@@ -595,11 +595,11 @@ int32_t quadprog(int problemLen, double *H, double *f, int inequalityLen, float 
 // Quadratic programming
 /*int main()
 {
-	int i;
+	int32_t i;
 	init_genrand(1337ul);
-	int problemLength = 11;
-	int equalityLen = 3;
-	int inequalityLen = 102;
+	int32_t problemLength = 11;
+	int32_t equalityLen = 3;
+	int32_t inequalityLen = 102;
 	//quadprog(problemLength, Hqp, fqp, inequalityLen, Aqp, bqp, equalityLen, Aeqqp, beqqp, lbqp, ubqp);
 	quadprog(problemLength, Hqp, fqp, inequalityLen, Aqp, 0, equalityLen, Aeqqp, beqqp, 0, 0);
 	system("pause");
@@ -608,12 +608,12 @@ int32_t quadprog(int problemLen, double *H, double *f, int inequalityLen, float 
 // Constrained least square
 /*int main()
 {
-	int i;
+	int32_t i;
 	init_genrand(1337ul);
-	int equationsLength = 5;
-	int problemLength = 4;
-	int equalityLen = 2;
-	int inequalityLen = 3;
+	int32_t equationsLength = 5;
+	int32_t problemLength = 4;
+	int32_t equalityLen = 2;
+	int32_t inequalityLen = 3;
 	double *hessian = (double*)malloc(problemLength * problemLength * sizeof(double));
 	matrix_transpose_matrix_self_product(Clsq, hessian, problemLength, equationsLength);
 	double *linConstraint = (double*)malloc(problemLength * sizeof(double));

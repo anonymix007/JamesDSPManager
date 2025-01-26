@@ -16,8 +16,22 @@ extern "C" {
 #include "essential.h"
 #endif
 
-#include "jdsp/jdsp_header.h"
+#ifndef ENODATA
+#define ENODATA 61
+#endif
 
+#ifdef HEXAGON_STUB
+#include <pthread.h>
+
+typedef struct
+{
+	uint64_t handle;
+    pthread_mutex_t handle_mut;
+	int in_size;
+	int out_size;
+} EffectDSPMain;
+#else
+#include "jdsp/jdsp_header.h"
 typedef struct
 {
 	unsigned long long initializeForFirst;
@@ -37,6 +51,7 @@ typedef struct
 	int16_t impChannels;
 	int32_t impulseLengthActual, convolverNeedRefresh;
 } EffectDSPMain;
+#endif
 
 void EffectDSPMainConstructor(EffectDSPMain *dspmain);
 void EffectDSPMainDestructor(EffectDSPMain *dspmain);

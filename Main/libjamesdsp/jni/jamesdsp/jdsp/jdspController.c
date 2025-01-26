@@ -5,15 +5,16 @@
 #include <time.h>
 #ifndef _WIN32
 #include <unistd.h>
-#include <sys/time.h>
 #endif
 #include <float.h>
 #include "Effects/eel2/dr_flac.h"
 #include "Effects/eel2/ns-eel.h"
 #include "jdsp_header.h"
-#ifdef DEBUG
 #define TAG "EffectDSPMain"
-#include <android/log.h>
+
+#ifdef __hexagon__
+#include <HAP_farf.h>
+#define __android_log_print(level, tag, ...) FARF(ALWAYS, #level ": " __VA_ARGS__)
 #endif
 
 // Range: 0x800000, 0x7fffff

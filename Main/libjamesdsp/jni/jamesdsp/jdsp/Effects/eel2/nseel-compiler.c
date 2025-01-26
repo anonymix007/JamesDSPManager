@@ -1100,7 +1100,7 @@ typedef struct
 	int   ct;    //count of items in queue
 } runningMedian;
 #define minCt(m) (((m)->ct-1)/2) //count of items in minheap
-#define maxCt(m) (((m)->ct)/2)   //count of items in maxheap 
+#define maxCt(m) (((m)->ct)/2)   //count of items in maxheap
 //returns 1 if heap[i] < heap[j]
 static inline int mmless(runningMedian *m, int i, int j)
 {
@@ -1474,7 +1474,7 @@ static float NSEEL_CGEN_CALL _eel_vectorizeDivide(void *opaque, INT_PTR num_para
 		result[i] = A[i] / B[i];
 	return 1;
 }
-float expint(float x)
+float fexpint(float x)
 {
 	if (x <= 1.0f)
 		return -0.57721566490153286060651209f - logf(x) + x * (-x / 4.0f + 1.0f);
@@ -2443,6 +2443,7 @@ static float NSEEL_CGEN_CALL _eel_strlen(void *opaque, float *fmt_index)
 		return (float)strlen(fmt);
 	return 0.0f;
 }
+
 #ifdef _WIN32
 #include <direct.h>
 #include "dirent.h"
@@ -2470,6 +2471,9 @@ static float NSEEL_CGEN_CALL _eel_ls(void *opaque, float *fmt_index)
 }
 static float NSEEL_CGEN_CALL _eel_cd(void *opaque, float *fmt_index)
 {
+#ifdef __hexagon__
+    return -1;
+#else
 	if (opaque)
 	{
 		compileContext *c = (compileContext*)opaque;
@@ -2482,6 +2486,7 @@ static float NSEEL_CGEN_CALL _eel_cd(void *opaque, float *fmt_index)
 #endif
 	}
 	return 0.0f;
+#endif
 }
 static float NSEEL_CGEN_CALL _eel_eval(void *opaque, float *s)
 {
@@ -4522,7 +4527,7 @@ static functionType fnTable1[] = {
   {"round",  nseel_asm_1pdd,nseel_asm_1pdd_end, 1 | NSEEL_NPARAMS_FLAG_CONST | BIF_RETURNSONSTACK | BIF_LASTPARMONSTACK | BIF_CLEARDENORMAL, {(void**)&redirect_roundf} },
   {"floor",  nseel_asm_1pdd,nseel_asm_1pdd_end, 1 | NSEEL_NPARAMS_FLAG_CONST | BIF_RETURNSONSTACK | BIF_LASTPARMONSTACK | BIF_CLEARDENORMAL, {(void**)&redirect_floorf} },
   {"ceil",   nseel_asm_1pdd,nseel_asm_1pdd_end, 1 | NSEEL_NPARAMS_FLAG_CONST | BIF_RETURNSONSTACK | BIF_LASTPARMONSTACK | BIF_CLEARDENORMAL, {(void**)&redirect_ceilf} },
-  {"expint", nseel_asm_1pdd,nseel_asm_1pdd_end, 1 | NSEEL_NPARAMS_FLAG_CONST | BIF_RETURNSONSTACK | BIF_LASTPARMONSTACK | BIF_CLEARDENORMAL, {(void**)&expint} },
+  {"expint", nseel_asm_1pdd,nseel_asm_1pdd_end, 1 | NSEEL_NPARAMS_FLAG_CONST | BIF_RETURNSONSTACK | BIF_LASTPARMONSTACK | BIF_CLEARDENORMAL, {(void**)&fexpint} },
   {"expintFast",nseel_asm_1pdd,nseel_asm_1pdd_end, 1 | NSEEL_NPARAMS_FLAG_CONST | BIF_RETURNSONSTACK | BIF_LASTPARMONSTACK | BIF_CLEARDENORMAL, {(void**)&expint_interpolation} },
   {"invsqrt",nseel_asm_1pdd,nseel_asm_1pdd_end,1 | NSEEL_NPARAMS_FLAG_CONST | BIF_RETURNSONSTACK | BIF_LASTPARMONSTACK | BIF_FPSTACKUSE(3), {(void**)&invsqrt} },
   {"invsqrtFast",nseel_asm_invsqrt,nseel_asm_invsqrt_end,1 | NSEEL_NPARAMS_FLAG_CONST | BIF_RETURNSONSTACK | BIF_LASTPARMONSTACK | BIF_FPSTACKUSE(3), },
@@ -4822,7 +4827,7 @@ opcodeRec *nseel_resolve_named_symbol(compileContext *ctx, opcodeRec *rec, int32
 			rel_prefix_len = 4;
 			rel_prefix_idx = -1;
 		}
-		// scan for parameters/local variables before user functions   
+		// scan for parameters/local variables before user functions
 		if (rel_prefix_idx < -1 && ctx->function_localTable_Size[0] > 0 && ctx->function_localTable_Names[0] && ctx->function_localTable_ValuePtrs)
 		{
 			char * const * const namelist = ctx->function_localTable_Names[0];
@@ -4931,7 +4936,7 @@ opcodeRec *nseel_resolve_named_symbol(compileContext *ctx, opcodeRec *rec, int32
 		for (pass = 0; pass < 2; pass++)
 		{
 			_codeHandleFunctionRec *fr = pass ? ctx->functions_common : ctx->functions_local;
-			// sname is [namespace.[ns.]]function, find best match of function that matches the right end   
+			// sname is [namespace.[ns.]]function, find best match of function that matches the right end
 			while (fr)
 			{
 				int32_t this_np = fr->num_params;
@@ -5114,7 +5119,7 @@ opcodeRec *nseel_setCompiledFunctionCallParameters(compileContext *ctx, opcodeRe
 	{
 		if (code1 && r->opcodeType == OPCODETYPE_FUNC1 && r->fntype == FN_WHILE)
 		{
-			// change while(x) (postcode) to be 
+			// change while(x) (postcode) to be
 			// while ((x) ? (postcode;1) : 0);
 			r->parms.parms[0] =
 				nseel_createIfElse(ctx, r->parms.parms[0],
@@ -5194,7 +5199,7 @@ opcodeRec *nseel_createSimpleCompiledFunction(compileContext *ctx, int32_t fn, i
 			if (code1 && code1->opcodeType == OPCODETYPE_FUNC2 && code1->fntype == fn)
 			{
 				opcodeRec *t = (opcodeRec *)code1->fn;
-				// keep joins in the form of dosomething->morestuff. 
+				// keep joins in the form of dosomething->morestuff.
 				// in this instance, code1 is previous stuff to do, code2 is new stuff to do
 				r->parms.parms[0] = t->parms.parms[1];
 				code1->fn = (t->parms.parms[1] = r);
@@ -5847,7 +5852,7 @@ start_over: // when an opcode changed substantially in optimization, goto here t
 								}
 								else
 								{
-									// it would be nice to replace 10^x with exp(log(10)*x) or 2^x with exp(log(2),x), but 
+									// it would be nice to replace 10^x with exp(log(10)*x) or 2^x with exp(log(2),x), but
 									// doing so breaks rounding. we could maybe only allow 10^x, which is used for dB conversion,
 									// but for now we should just force the programmer do it exp(log(10)*x) themselves.
 									break;
@@ -6229,7 +6234,7 @@ start_over: // when an opcode changed substantially in optimization, goto here t
 			}
 			else
 			{
-				// todo need to create a new opcodeRec here, for now just leave as is 
+				// todo need to create a new opcodeRec here, for now just leave as is
 				// (non-conditional const 3 parameter functions are rare anyway)
 			}
 			return 1;
@@ -7381,7 +7386,7 @@ NSEEL_CODEHANDLE NSEEL_code_compile_ex(NSEEL_VMCTX _ctx, const char *_expression
 			}
 			if (!*expr || !had_something) break;
 		}
-		// parse   
+		// parse
 		{
 			int32_t tmplen, funcname_len;
 			const char *p = expr;

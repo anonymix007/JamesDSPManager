@@ -25,6 +25,8 @@
 
 #endif
 
+#elif defined(__hexagon__)
+
 #else
 #error "Cannot define getPeakRSS( ) or getCurrentRSS( ) for an unknown OS."
 #endif

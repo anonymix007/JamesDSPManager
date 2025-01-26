@@ -1,0 +1,125 @@
+include $(QURT_INSTALL)/qurt_libs.min
+
+#Set NO_QURT_INC to 1 to disable qurt libraries/headers inclusion
+NO_QURT_INC = 0
+
+UTILS_DIR=$(HEXAGON_SDK_ROOT)/utils/examples
+
+# This builds the dynamic library
+BUILD_DLLS += libjamesdsp_skel
+
+C_FLAGS += -flto -Ofast -fvisibility=hidden \
+           -fdata-sections \
+           -ftree-vectorize \
+           -ffunction-sections \
+           -fdebug-prefix-map=$(HOME)=/mnt/workspace
+C_FLAGS += -DJAMESDSP_REFERENCE_IMPL \
+           '-D__QAIC_SKEL_EXPORT=__attribute__((visibility("default")))' \
+           -DDEBUG
+C_FLAGS += -Wno-error=unused \
+           -Wno-error=visibility \
+           -Wno-error=self-assign \
+           -Wno-error=pointer-sign \
+           -Wno-error=char-subscripts \
+           -Wno-error=tautological-compare \
+           -Wno-error=strict-prototypes \
+           -Wno-error=incompatible-pointer-types
+
+libjamesdsp_skel_QAICIDLS += jamesdsp/jamesdsp
+libjamesdsp_skel_C_SRCS += $(OBJ_DIR)/jamesdsp_skel
+libjamesdsp_skel.C_SRCS += \
+    jamesdsp/cpthread.c \
+    jamesdsp/jdsp_impl.c \
+    jamesdsp/jdsp/generalDSP/spectralInterpolatorFloat.c \
+    jamesdsp/jdsp/generalDSP/ArbFIRGen.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/codelet.c \
+    jamesdsp/jdsp/generalDSP/digitalFilters.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/FFTConvolver.c \
+    jamesdsp/jdsp/generalDSP/TwoStageFFTConvolver.c \
+    jamesdsp/jdsp/generalDSP/interpolation.c \
+    jamesdsp/jdsp/generalDSP/generalProg.c \
+    jamesdsp/jdsp/Effects/vdc.c \
+    jamesdsp/jdsp/Effects/vacuumTube.c \
+    jamesdsp/jdsp/Effects/stereoEnhancement.c \
+    jamesdsp/jdsp/Effects/reverb.c \
+    jamesdsp/jdsp/Effects/liveprogWrapper.c \
+    jamesdsp/jdsp/Effects/multimodalEQ.c \
+    jamesdsp/jdsp/Effects/dynamic.c \
+    jamesdsp/jdsp/Effects/dbb.c \
+    jamesdsp/jdsp/Effects/convolver1D.c \
+    jamesdsp/jdsp/Effects/crossfeed.c \
+    jamesdsp/jdsp/Effects/bs2b.c \
+    jamesdsp/jdsp/Effects/arbEqConv.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/libsamplerate/samplerate.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/libsamplerate/src_sinc.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/libsamplerate/src_linear.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/FilterDesign/generalFdesign.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/FilterDesign/cos_fib_paraunitary.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/FilterDesign/polyphaseFilterbank.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/FilterDesign/polyphaseASRC.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/FilterDesign/eqnerror.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/FilterDesign/firls.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/SolveLinearSystem/inv.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/SolveLinearSystem/pinv.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/SolveLinearSystem/mldivide.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/SolveLinearSystem/mrdivide.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/SolveLinearSystem/qr_fact.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/solvopt.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/cpoly.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/MersenneTwister.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/quadprog.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/atox.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/constant.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/cxaop.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/cxbasic.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/cxconstant.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/cxconvf.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/cxexp.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/cxhypb.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/cxidiv.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/cxpow.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/cxprcmp.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/cxtrig.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/hpaconf.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/prcxpr.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/print.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/prxpr.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/sfmod.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/shift.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/xadd.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/xchcof.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/xdiv.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/xevtch.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/xexp.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/xfmod.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/xfrac.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/xhypb.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/xivhypb.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/xivtrg.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/xlog.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/xmul.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/xneg.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/xprcmp.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/xpwr.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/xsigerr.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/xsqrt.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/xtodbl.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/xtoflt.c \
+    jamesdsp/jdsp/Effects/eel2/numericSys/HPFloat/xtrig.c \
+    jamesdsp/jdsp/Effects/eel2/s_str.c \
+    jamesdsp/jdsp/Effects/eel2/fft.c \
+    jamesdsp/jdsp/Effects/eel2/nseel-compiler.c \
+    jamesdsp/jdsp/Effects/eel2/nseel-ram.c \
+    jamesdsp/jdsp/Effects/eel2/y.tab.c \
+    jamesdsp/jdsp/binaryBlobs.c \
+    jamesdsp/jdsp/jdspController.c \
+    jamesdsp/jamesdsp_hexagon.c \
+    jamesdsp/usleep.c \
+    jamesdsp/version.c
+
+# copy final build products to the ship directory
+BUILD_COPIES += \
+   $(DLLS) \
+   $(EXES) \
+   $(LIBS) \
+   $(SHIP_DIR)/ ;
