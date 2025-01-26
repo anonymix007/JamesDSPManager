@@ -1,5 +1,7 @@
 #ifndef _ANDROID_EFFECT_HEADER_
 #define _ANDROID_EFFECT_HEADER_
+#include <stdint.h>
+#include <stddef.h>
 #include <errno.h>
 typedef struct effect_uuid_s
 {

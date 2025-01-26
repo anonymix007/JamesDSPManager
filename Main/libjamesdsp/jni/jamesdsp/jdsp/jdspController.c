@@ -5,12 +5,17 @@
 #include <time.h>
 #ifndef _WIN32
 #include <unistd.h>
+#include <sys/time.h>
 #endif
 #include <float.h>
 #include "Effects/eel2/dr_flac.h"
 #include "Effects/eel2/ns-eel.h"
 #include "jdsp_header.h"
+#ifdef DEBUG
 #define TAG "EffectDSPMain"
+#include <android/log.h>
+#endif
+
 // Range: 0x800000, 0x7fffff
 int32_t i32_from_p24_big_endian(const uint8_t *packed24)
 {
